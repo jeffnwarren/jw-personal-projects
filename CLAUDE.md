@@ -31,8 +31,16 @@ Personal projects and utility scripts. Each subdirectory is an independent proje
   - A design or architecture decision with transferable reasoning
   - A mistake caught or avoided that generalizes beyond this project
   If something qualifies, add it as a new pattern or strengthen an existing one.
+- Review the session for anything that may warrant updating this file (project registry, repo conventions). Do NOT update the Session Workflow section autonomously. Instead, add dated entries to the `## Pending Considerations` section below for review.
 
 ## Repo Conventions
 - Root `.gitignore` covers all projects: `.DS_Store`, `Thumbs.db`, `__MACOSX/`, `.vscode/`, `.claude/settings.local.json`
 - Per-project `.gitignore` files for project-specific rules only (e.g. `node_modules/`)
 - Shell scripts should have the git executable bit set (mode 100755)
+
+## Pending Considerations
+> Candidates for promoting to Project Registry, Repo Conventions, or Session Workflow.
+> Review each entry and either promote it to the relevant section or delete it.
+> Do NOT act on these automatically — they require deliberate review.
+
+<!-- Add dated entries below this line -->
