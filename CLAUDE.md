@@ -25,6 +25,12 @@ Personal projects and utility scripts. Each subdirectory is an independent proje
 ### End of session
 - Update the relevant `HANDOFF.md`: current state, any new TODOs, decisions made.
 - Commit open work.
+- Review the session for anything worth adding to [My_AI_Interactions/effective-ai-interaction-patterns.md](My_AI_Interactions/effective-ai-interaction-patterns.md). Candidates include:
+  - A question or reframing that led to a meaningfully better solution
+  - A prompting technique or workflow that worked especially well
+  - A design or architecture decision with transferable reasoning
+  - A mistake caught or avoided that generalizes beyond this project
+  If something qualifies, add it as a new pattern or strengthen an existing one.
 
 ## Repo Conventions
 - Root `.gitignore` covers all projects: `.DS_Store`, `Thumbs.db`, `__MACOSX/`, `.vscode/`, `.claude/settings.local.json`
