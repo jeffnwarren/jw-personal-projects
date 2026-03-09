@@ -7,7 +7,22 @@ These patterns are drawn from real moments across multiple AI-assisted developme
 
 ## Starting a Session
 
-### 1. Point the AI at your context before asking questions
+### 1. Set up session context before the session starts
+
+**What I did:**
+> Created a `CLAUDE.md` at the root of the repo with a project registry, session workflow, and repo conventions. Claude Code auto-reads this file at the start of every session.
+
+**Why it worked:**
+Pattern 2 below describes manually pointing the AI at context within a session. This is the step before that: building infrastructure so the context loads automatically and doesn't depend on remembering to ask. Each session starts already oriented — what projects exist, what state they're in, what conventions apply — without any setup work.
+
+**The pattern:**
+> Invest time once in a session bootstrap file (CLAUDE.md, copilot-instructions.md, or equivalent). The payoff is every future session starting grounded rather than blank.
+
+The bootstrap file should cover: what the repo/project is, what's currently active, and any conventions the AI should follow throughout.
+
+---
+
+### 2. Point the AI at your context before asking questions
 
 **What I did:**
 > "Can you read through the HANDOFF.md, and then I have some input"
@@ -22,7 +37,7 @@ One front-loaded read buys better answers for the entire session.
 
 ---
 
-### 2. Connect observations across sessions
+### 3. Connect observations across sessions
 
 > *"I am fairly certain a previous AI session removed narration from the book."*
 
@@ -274,6 +289,21 @@ This is how this document came to exist.
 
 ---
 
+### 19. Let content scope determine organizational location
+
+**What I did:**
+> Moved `My_AI_Interactions/` from inside `gamebooks/` to the repo root after noticing that its content drew from multiple projects (gamebooks, EDI processing, git workflows) — not just gamebooks.
+
+**Why it worked:**
+Where a file lives is a signal about who it belongs to. A cross-project reference doc inside a single project folder creates a false impression that it's project-specific, and people working on other projects won't look for it there.
+
+**The pattern:**
+> Ask "who is the real audience for this, and where would they naturally look?" A file that belongs to one project lives in that project's folder. A file that belongs to everyone lives at the root.
+
+This applies beyond files: shared config, conventions, and tooling should also live at the scope that reflects their actual reach.
+
+---
+
 ## The Underlying Principle
 
 The most effective moments across these sessions weren't "tell me what to do" exchanges — they were genuine back-and-forth. You bring observations, memories, domain knowledge, and real-world constraints. The AI brings breadth, implementation, and systematic analysis. The interface between those two things is where the most useful work happens.
@@ -284,6 +314,7 @@ The most effective moments across these sessions weren't "tell me what to do" ex
 
 | Phase | Pattern | One-liner |
 |-------|---------|-----------|
+| **Start** | Session bootstrap | Invest once in a CLAUDE.md / instruction file so every session starts grounded. |
 | **Start** | Point AI at context | "Read the HANDOFF.md first, then I have questions." |
 | **Start** | Connect across sessions | Surface memories from previous sessions, even uncertain ones. |
 | **Frame** | Evaluate before implementing | "What do you think — before you write any code?" |
@@ -302,7 +333,8 @@ The most effective moments across these sessions weren't "tell me what to do" ex
 | **Step back** | Confirm key decisions | Restate important decisions back as a question. |
 | **Wrap up** | Document at end of session | "What should we capture before I stop?" |
 | **Wrap up** | Ask the meta-question | "What did I do well? What could I improve?" |
+| **Organize** | Scope drives location | A file that belongs to everyone lives at the root, not inside one project. |
 
 ---
 
-*Consolidated from multiple AI-assisted development sessions. Last updated: February 23, 2026*
+*Consolidated from multiple AI-assisted development sessions. Last updated: March 9, 2026*
