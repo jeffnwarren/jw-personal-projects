@@ -1,0 +1,15 @@
+Atually there are 2 problems I think! The html book number pages don't match the original book. What is currently the Intro page is supposed to be page 1. It had some non-story stuff at the beginning so at the early stage of the project I chose to make what was originally page 1 into an Intro page. But because of that it altered the page numbers from the orginal which I did not intend and want fixed!.  
+And the second problem is that page 111 got combined into page 112.  
+I have a collection (much smaller in size) of jpgeg images of every page from 2 onward.   
+I would like original page numbers used (because you can aslo think of them as passages since this is a dungeon crawl CYOA book). And I want 110 and 111 separated.
+
+
+1. Rename all the jpegs with the page number that they are
+a. Watch out for image files - name them appropriately page-X-illustration ?
+2. New project
+3. Verify what needs to be done (make sure above is correct).
+4. Write it up. Iterate on writing to think it through.
+a. especially the illustrations part - I like how they're embedded in the html now since they aren't their own page number.
+5. Attach: 
+a. current gamebook
+b. folder of high dpi page images (named correctly

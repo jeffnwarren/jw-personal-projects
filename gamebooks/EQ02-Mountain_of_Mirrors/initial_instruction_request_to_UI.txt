@@ -1,0 +1,11 @@
+Given the files in this project, and given the successful conversion of Dungeon of Dread to a playable html gamebook, I'd like you convert Mountain of Mirrors to the same type of playable html gamebook. 
+
+Let me know what model would be best for this task, and recommend a plan to do this in stages so that it is not one huge run that times out or exceeds Claude's usage. 
+
+Based on the plan, I want you to keep a running TODO or HANDOFF document so can resume with another session when needed.
+
+I do want a README or similar kind of file created too for the project to keep track of Successful steps taken to perform this project, which will be helpful instruction for future book conversions.
+
+Note that the the PDF of the Mountain of Mirrors book is rather large but that is because I converted it from a low dpi PDF to high dpi (450) jpegs (one jpeg per page), and then back to a single pdf. 
+** I should have asked if it was better to include the individual jpeg files instead of the very large pdf...
+
