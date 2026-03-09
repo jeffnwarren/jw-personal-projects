@@ -1,3 +1,5 @@
 .DS_Store
+Thumbs.db
 __MACOSX/
 .vscode/
+.claude/settings.local.json
