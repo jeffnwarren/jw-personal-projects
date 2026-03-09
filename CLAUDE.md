@@ -10,6 +10,7 @@ Personal projects and utility scripts. Each subdirectory is an independent proje
 | [zorin-os-script](zorin-os-script/) | Bash script to tune a fresh Zorin OS 18 VM (VMware Fusion) for dev use — packages, performance, security | Active | [HANDOFF.md](zorin-os-script/HANDOFF.md) |
 | [ova_rename](ova_rename/) | Scripts to rename a VMware OVA and all its internal references: `rename-ova-on-mac.zsh` (macOS/zsh) and `rename-ova-on-linux.sh` (Linux/bash) | Stable | — |
 | [gamebooks](gamebooks/) | Conversion of classic gamebooks (EQ series) to playable HTML + Playwright QA tooling | Active | — |
+| [My_AI_Interactions](My_AI_Interactions/) | Cross-project notes and patterns from AI-assisted dev sessions | Reference | — |
 
 ## Session Workflow
 
