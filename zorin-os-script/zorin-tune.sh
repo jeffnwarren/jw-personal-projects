@@ -18,12 +18,13 @@
 #    development workstation with VS Code + Claude Pro. Covers three areas:
 #
 #    1. PACKAGE MANAGEMENT — system update, install dev tools (Git, Python 3,
-#       Node.js LTS, VS Code), replace Flatpaks with apt equivalents, remove bloat.
+#       Node.js LTS, VS Code, Sublime Text, GitHub CLI), replace Flatpaks with
+#       apt equivalents, remove bloat.
 #
 #    2. PERFORMANCE — swappiness, I/O scheduler, unnecessary services,
 #       open-vm-tools, sysctl network tuning, CPU governor, preload,
-#       tmpfs /tmp, GNOME desktop optimization, journald limits, fstrim,
-#       apt cache cleanup.
+#       tmpfs /tmp, GNOME desktop optimization (incl. screen lock + animations),
+#       journald limits, fstrim, apt cache cleanup, disable suspend/hibernate.
 #
 #    3. SECURITY — UFW firewall, SSH hardening, fail2ban, unattended
 #       upgrades, sysctl hardening, AppArmor, IPv6 disable, rkhunter,
@@ -72,7 +73,7 @@ set -euo pipefail
 # Constants & globals
 # ---------------------------------------------------------------------------
 readonly SCRIPT_NAME="zorin-tune"
-readonly SCRIPT_VERSION="2.1.0"
+readonly SCRIPT_VERSION="2.2.0"
 readonly LOCK_FILE="/tmp/${SCRIPT_NAME}.lock"
 TIMESTAMP="$(date +%Y-%m-%d_%H-%M-%S_%Z)"
 readonly TIMESTAMP
@@ -780,6 +781,79 @@ log_restore 'Bloat packages were removed: ${removed_list}. Reinstall manually if
 }
 rollback_bloat_removal() { return 0; }  # Can't auto-reinstall purged packages
 
+# --- K8. Install Sublime Text via official apt repo ------------------------
+check_sublime() { command -v subl &>/dev/null; }
+apply_sublime() {
+    DEBIAN_FRONTEND=noninteractive apt-get install -y -qq apt-transport-https curl gpg
+
+    if [[ ! -f /etc/apt/keyrings/sublimehq.gpg ]]; then
+        mkdir -p /etc/apt/keyrings
+        local tmp_key
+        tmp_key="$(mktemp)"
+        curl -fsSL https://download.sublimetext.com/sublimehq-pub.gpg -o "$tmp_key"
+        gpg --dearmor -o /etc/apt/keyrings/sublimehq.gpg < "$tmp_key"
+        rm -f "$tmp_key"
+    fi
+
+    if [[ ! -f /etc/apt/sources.list.d/sublime-text.list ]]; then
+        echo "deb [signed-by=/etc/apt/keyrings/sublimehq.gpg] https://download.sublimetext.com/ apt/stable/" \
+            > /etc/apt/sources.list.d/sublime-text.list
+        apt-get update -qq
+    fi
+
+    DEBIAN_FRONTEND=noninteractive apt-get install -y -qq sublime-text
+    local ver
+    ver="$(subl --version 2>/dev/null || echo 'unknown')"
+    log INFO "  Sublime Text installed: $ver"
+    add_restore "# Remove Sublime Text and repo
+log_restore 'Removing Sublime Text'
+apt-get remove -y -qq sublime-text 2>/dev/null || true
+rm -f /etc/apt/sources.list.d/sublime-text.list
+rm -f /etc/apt/keyrings/sublimehq.gpg
+apt-get update -qq"
+}
+rollback_sublime() {
+    apt-get remove -y -qq sublime-text 2>/dev/null || true
+    rm -f /etc/apt/sources.list.d/sublime-text.list
+    rm -f /etc/apt/keyrings/sublimehq.gpg
+}
+
+# --- K9. Install GitHub CLI (gh) via official apt repo --------------------
+check_gh() { command -v gh &>/dev/null; }
+apply_gh() {
+    DEBIAN_FRONTEND=noninteractive apt-get install -y -qq curl gpg
+
+    if [[ ! -f /usr/share/keyrings/githubcli-archive-keyring.gpg ]]; then
+        local tmp_key
+        tmp_key="$(mktemp)"
+        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg -o "$tmp_key"
+        mv "$tmp_key" /usr/share/keyrings/githubcli-archive-keyring.gpg
+        chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+    fi
+
+    if [[ ! -f /etc/apt/sources.list.d/github-cli.list ]]; then
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+            > /etc/apt/sources.list.d/github-cli.list
+        apt-get update -qq
+    fi
+
+    DEBIAN_FRONTEND=noninteractive apt-get install -y -qq gh
+    local ver
+    ver="$(gh --version 2>/dev/null | head -1 || echo 'unknown')"
+    log INFO "  GitHub CLI installed: $ver"
+    add_restore "# Remove GitHub CLI and repo
+log_restore 'Removing GitHub CLI'
+apt-get remove -y -qq gh 2>/dev/null || true
+rm -f /etc/apt/sources.list.d/github-cli.list
+rm -f /usr/share/keyrings/githubcli-archive-keyring.gpg
+apt-get update -qq"
+}
+rollback_gh() {
+    apt-get remove -y -qq gh 2>/dev/null || true
+    rm -f /etc/apt/sources.list.d/github-cli.list
+    rm -f /usr/share/keyrings/githubcli-archive-keyring.gpg
+}
+
 # ===========================================================================
 #
 #   PERFORMANCE TUNING FUNCTIONS
@@ -1008,17 +1082,26 @@ apply_gnome_opt() {
     sudo -u "$REAL_USER" dbus-launch gsettings set org.gnome.desktop.sound event-sounds false 2>/dev/null || true
     log INFO "  Disabled event sounds"
 
+    # Disable screen lock and auto screen-blank (VM shouldn't lock itself)
+    sudo -u "$REAL_USER" dbus-launch gsettings set org.gnome.desktop.screensaver lock-enabled false 2>/dev/null || true
+    sudo -u "$REAL_USER" dbus-launch gsettings set org.gnome.desktop.session idle-delay 0 2>/dev/null || true
+    log INFO "  Disabled screen lock and auto screen-blank"
+
     add_restore "# Restore GNOME desktop settings
 log_restore 'Restoring GNOME desktop settings'
 sudo -u '$REAL_USER' dbus-launch gsettings set org.gnome.desktop.interface enable-animations true 2>/dev/null || true
 sudo -u '$REAL_USER' dbus-launch gsettings set org.gnome.desktop.interface font-hinting 'full' 2>/dev/null || true
 sudo -u '$REAL_USER' dbus-launch gsettings set org.gnome.desktop.interface enable-hot-corners true 2>/dev/null || true
-sudo -u '$REAL_USER' dbus-launch gsettings set org.gnome.desktop.sound event-sounds true 2>/dev/null || true"
+sudo -u '$REAL_USER' dbus-launch gsettings set org.gnome.desktop.sound event-sounds true 2>/dev/null || true
+sudo -u '$REAL_USER' dbus-launch gsettings set org.gnome.desktop.screensaver lock-enabled true 2>/dev/null || true
+sudo -u '$REAL_USER' dbus-launch gsettings set org.gnome.desktop.session idle-delay 300 2>/dev/null || true"
 }
 rollback_gnome_opt() {
     sudo -u "$REAL_USER" dbus-launch gsettings set org.gnome.desktop.interface enable-animations true 2>/dev/null || true
     sudo -u "$REAL_USER" dbus-launch gsettings set org.gnome.desktop.interface enable-hot-corners true 2>/dev/null || true
     sudo -u "$REAL_USER" dbus-launch gsettings set org.gnome.desktop.sound event-sounds true 2>/dev/null || true
+    sudo -u "$REAL_USER" dbus-launch gsettings set org.gnome.desktop.screensaver lock-enabled true 2>/dev/null || true
+    sudo -u "$REAL_USER" dbus-launch gsettings set org.gnome.desktop.session idle-delay 300 2>/dev/null || true
 }
 
 # --- P10. Journald log size limit ------------------------------------------
@@ -1073,6 +1156,22 @@ apply_apt_clean() {
     # No restore needed for cache cleanup
 }
 rollback_apt_clean() { return 0; }
+
+# --- P13. Disable suspend/hibernate (VM power management) -----------------
+check_suspend_disabled() {
+    systemctl is-masked sleep.target &>/dev/null && \
+    systemctl is-masked suspend.target &>/dev/null
+}
+apply_suspend_disabled() {
+    systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target 2>/dev/null || true
+    log INFO "  Masked sleep, suspend, hibernate, and hybrid-sleep targets."
+    add_restore "# Re-enable suspend/hibernate targets
+log_restore 'Unmasking suspend/hibernate targets'
+systemctl unmask sleep.target suspend.target hibernate.target hybrid-sleep.target 2>/dev/null || true"
+}
+rollback_suspend_disabled() {
+    systemctl unmask sleep.target suspend.target hibernate.target hybrid-sleep.target 2>/dev/null || true
+}
 
 # ===========================================================================
 #
@@ -1435,6 +1534,14 @@ main() {
         "Remove bloat apps (Brasero, LibreOffice, Remmina, etc.)" \
         check_bloat_removal apply_bloat_removal rollback_bloat_removal
 
+    apply_item "K8" \
+        "Install Sublime Text (via official apt repo)" \
+        check_sublime apply_sublime rollback_sublime
+
+    apply_item "K9" \
+        "Install GitHub CLI — gh command (via official apt repo)" \
+        check_gh apply_gh rollback_gh
+
     # ===================================================================
     #  GROUP 2: PERFORMANCE TUNING
     # ===================================================================
@@ -1476,7 +1583,7 @@ main() {
         check_tmpfs apply_tmpfs rollback_tmpfs
 
     apply_item "P9" \
-        "GNOME desktop optimization — disable animations, hot corners, event sounds" \
+        "GNOME desktop optimization — disable animations, screen lock, hot corners, event sounds" \
         check_gnome_opt apply_gnome_opt rollback_gnome_opt
 
     apply_item "P10" \
@@ -1490,6 +1597,10 @@ main() {
     apply_item "P12" \
         "Apt cache cleanup — free disk space from orphan packages" \
         check_apt_clean apply_apt_clean rollback_apt_clean
+
+    apply_item "P13" \
+        "Disable suspend/hibernate — VM should not sleep independently of host" \
+        check_suspend_disabled apply_suspend_disabled rollback_suspend_disabled
 
     # ===================================================================
     #  GROUP 3: SECURITY HARDENING

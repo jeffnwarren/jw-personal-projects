@@ -538,6 +538,37 @@ SSH_BLOCK
 }
 
 # ---------------------------------------------------------------------------
+# Step 6: Disable macOS App Nap for VMware Fusion
+# ---------------------------------------------------------------------------
+do_app_nap() {
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "  Disable macOS App Nap for VMware Fusion"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "  App Nap causes macOS to throttle VMware Fusion when it is in"
+    echo "  the background, leading to VM freezes and poor performance."
+    echo ""
+
+    local current
+    current="$(defaults read com.vmware.fusion NSAppSleepDisabled 2>/dev/null || echo '0')"
+    if [[ "$current" == "1" ]]; then
+        info "App Nap already disabled for VMware Fusion — skipping."
+        return 0
+    fi
+
+    if ! prompt_yn "  Disable App Nap for VMware Fusion?"; then
+        warn "Skipped App Nap disable."
+        echo "  To disable manually: defaults write com.vmware.fusion NSAppSleepDisabled -bool YES"
+        return 0
+    fi
+
+    defaults write com.vmware.fusion NSAppSleepDisabled -bool YES
+    info "App Nap disabled. VMware Fusion will not be throttled in the background."
+    echo "  To re-enable: defaults delete com.vmware.fusion NSAppSleepDisabled"
+}
+
+# ---------------------------------------------------------------------------
 # Clean mode — remove all tagged entries from previous run
 # ---------------------------------------------------------------------------
 do_clean() {
@@ -706,6 +737,9 @@ main() {
 
     # Step 5: SSH config
     do_ssh_config
+
+    # Step 6: App Nap
+    do_app_nap
 
     # Done
     echo ""

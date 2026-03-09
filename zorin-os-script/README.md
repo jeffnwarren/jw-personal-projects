@@ -79,7 +79,7 @@ sudo ./zorin-tune.sh --restore        # restore from most recent backup
 | File | Purpose |
 |------|---------|
 | `zorin-tune.sh` | The script. Runs on the Zorin VM. See its header for full usage and flags. |
-| `vmware-fusion-setup.sh` | Mac-side script. Automates vmxnet3, DHCP reservation, NAT port forwarding, SSH config. |
+| `vmware-fusion-setup.sh` | Mac-side script. Automates vmxnet3, DHCP reservation, NAT port forwarding, SSH config, App Nap disable. |
 | `VMware_Fusion_Host-Side_Setup_Manual.md` | Manual version of what `vmware-fusion-setup.sh` does, plus troubleshooting. |
 | `reference/jeff-zorin-os.vmx` | VM configuration for reference (5 vCPUs, 10 GB RAM, NVMe, EFI). |
 | `reference/request_for_performance_and_security_script_v2.txt` | Requirements doc that produced this script. |
@@ -87,10 +87,10 @@ sudo ./zorin-tune.sh --restore        # restore from most recent backup
 
 ## What the Script Does
 
-Runs 22 items across three groups, prompting Y/N for each:
+Runs 31 items across three groups, prompting Y/N for each:
 
-- **Package Management** (K1–K7) — system update, Git, Python 3, Node.js LTS, VS Code, Flatpak→apt replacement, bloat removal.
-- **Performance** (P1–P12) — swappiness, I/O scheduler, services, open-vm-tools, network tuning, CPU governor, preload, tmpfs, GNOME optimization, journald limits, fstrim, apt cleanup.
+- **Package Management** (K1–K9) — system update, Git, Python 3, Node.js LTS, VS Code, Sublime Text, GitHub CLI, Flatpak→apt replacement, bloat removal.
+- **Performance** (P1–P13) — swappiness, I/O scheduler, services, open-vm-tools, network tuning, CPU governor, preload, tmpfs, GNOME optimization (animations, screen lock, hot corners), journald limits, fstrim, apt cleanup, disable suspend/hibernate.
 - **Security** (S1–S9) — UFW firewall, SSH hardening, fail2ban, unattended upgrades, sysctl hardening, AppArmor, IPv6 disable, rkhunter, SUID/SGID audit.
 
 Every change is backed up before modification. A restore script and HANDOFF.md are auto-generated. All artifacts are bundled into a single zip for easy retrieval.
