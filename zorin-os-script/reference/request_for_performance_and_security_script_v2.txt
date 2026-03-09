@@ -1,0 +1,182 @@
+================================================================================
+REQUEST: Zorin OS VM — Performance & Security Hardening Script
+================================================================================
+
+CONTEXT
+-------
+I have a fresh Zorin OS installation running as a VM on VMware Fusion (version
+25H2u1). See the accompanying jeff-zorin-os.vmx for full VM specs. Key details:
+  - 5 vCPUs, 10 GB RAM, NVMe storage, NAT networking, EFI firmware
+  - Primary use: VS Code + Claude Pro for personal Python and Node.js projects
+  - Code is stored in a private GitHub repo
+  - I will SSH and SFTP into this VM, so SSH server access must be preserved
+  - I'm learning AI-assisted development; this is a dev workstation, not a server
+
+What I've already done:
+  - Updated to latest packages via the Software app
+  - Pinned Terminal and Text Editor to the Dash; unpinned Software app
+  - Changed wallpaper and accent color
+  - Exported a baseline .ova snapshot
+
+DELIVERABLE
+-----------
+A single downloadable bash script that analyzes and hardens the system for
+performance and security. The script should be self-contained and well-
+documented (no separate README needed).
+
+================================================================================
+REQUIREMENTS
+================================================================================
+
+1. SCRIPT STRUCTURE & DOCUMENTATION
+   1.1  Header comments in this order:
+        a) Quick-start (how to run it in one command)
+        b) High-level summary of what the script does
+        c) Full usage, including all flags/switches
+   1.2  The script must run correctly whether invoked as:
+          sudo ./script.sh
+        or with sudo baked into the script itself (auto-elevate if not root).
+
+2. INTERACTIVE PROMPTS
+   2.1  For each proposed change, prompt Y/N so I can approve individually.
+   2.2  Default behavior: prompt for every change.
+   2.3  Provide a --unattended flag that applies all changes without prompting.
+
+3. PRIORITIZATION & ORDERING
+   3.1  Present changes in order of highest impact first ("bang for buck").
+   3.2  Group changes by category (performance, security, cleanup) but still
+        run them in priority order.
+
+4. PERFORMANCE IMPROVEMENTS
+   4.1  System-level tuning appropriate for a VM dev workstation.
+   4.2  Visual/desktop settings: optimize for speed but keep the UI attractive
+        and usable — don't strip it to a bare TTY.
+   4.3  Suggest any VM-specific optimizations you're aware of (open-vm-tools
+        tuning, swappiness, I/O scheduler, etc.).
+
+5. SECURITY HARDENING
+   5.1  Harden SSH (key-based auth, disable root login, etc.) — but keep SSH
+        functional since I rely on it.
+   5.2  Firewall configuration (UFW or equivalent).
+   5.3  Any other reasonable hardening for a single-user dev VM. Don't go
+        overboard — this isn't a public-facing server.
+
+6. PACKAGE MANAGEMENT & SYSTEM UPDATES
+   6.1  Install all available apt updates.
+   6.2  Where a Flatpak is installed but an apt equivalent exists, replace the
+        Flatpak with the apt package (e.g., Brave Browser).
+   6.3  Avoid Flatpaks for new installs; prefer apt.
+   6.4  Install latest Python 3 and Node.js and Git (via apt or official repos).
+   6.5  Remove applications I don't need:
+        Brasero, GNOME Camera, Characters, Clocks, Contacts, Evolution,
+        LibreOffice, Remmina, Rhythmbox.
+   6.6  Purge any other obvious bloat, but prompt me before removing anything
+        not in the list above.
+
+7. BACKUP & RESTORE
+   7.1  Before making any change, back up the affected config/state.
+   7.2  Backup filenames must include a meaningful label + date-time stamp
+        in the local timezone (accounting for DST).
+        Example: ssh_config_backup_2026-03-08_14-30-00_CDT.tar.gz
+   7.3  Produce a separate restore script (or restore mode via a --restore
+        flag) that can roll back changes.
+   7.4  The restore script/mode should include inline comments explaining
+        what each restore step does.
+
+8. ERROR HANDLING & ROLLBACK
+   8.1  If a change fails and the script is still running, attempt to
+        identify which change failed and automatically roll it back.
+   8.2  After a failed rollback or critical error, offer the user a choice
+        to abort the script (but write/update the log first before exiting).
+
+9. LOGGING
+   9.1  Logging is on by default (no flag needed to enable).
+   9.2  Log file should record:
+        a) Each change that was applied
+        b) Each change that was skipped (user said N)
+        c) Each change that failed, with error details
+        d) Each rollback attempted and its result
+   9.3  Log filename format: meaningful_name_YYYY-MM-DD_HH-MM-SS_TZ.log
+        (local timezone, DST-aware).
+
+10. HANDOFF DOCUMENT
+    10.1  Generate a HANDOFF.md so a future AI session can pick up where this
+          left off.
+    10.2  Include: what was done, what was skipped, known TODOs, suggested
+          enhancements, and pointers to the log file(s) and backup(s).
+
+================================================================================
+SCOPE & COLLABORATION NOTES
+================================================================================
+
+- I'd like your input on the scope. If you think something important is missing
+  or a requirement is misguided, say so and explain why. I'm open to changes
+  but I want to understand the reasoning.
+- Present your proposed scope/plan before writing code so we can align first.
+- Keep the script focused: optimize and harden a dev VM — not build a
+  general-purpose provisioning tool.
+
+
+================================================================================
+WHY THIS REWRITE? (META-NOTES ON PROMPTING — for my own learning)
+================================================================================
+
+This is a rewrite of request_for_performance_and_security_script.txt. Below are
+the prompting principles applied. These notes are for my reference and can be
+deleted before submitting to an AI.
+
+1. LEAD WITH CONTEXT, NOT REQUIREMENTS
+   The original jumped straight into requirements. The rewrite opens with who
+   I am, what the system is, what it's for, and what's already been done. This
+   lets the AI calibrate its suggestions to my actual situation rather than
+   guessing.
+
+2. SEPARATE FACTS FROM REQUIREMENTS
+   The original mixed "here's what I already did" (items 12-13) and "see this
+   other file" (item 24) into the numbered requirements list. The rewrite puts
+   prior work and reference files in the CONTEXT section and keeps only
+   actionable requirements in the REQUIREMENTS section.
+
+3. GROUP BY CONCERN, NOT BY THOUGHT ORDER
+   The original listed requirements as they came to mind, so backup, logging,
+   error handling, and package management were interleaved. The rewrite groups
+   related requirements under clear headings (Performance, Security, Packages,
+   Backup, Logging, etc.) so the AI can reason about each domain coherently.
+
+4. USE CONSISTENT, CORRECT TERMINOLOGY
+   The original used "security fix" in items 3.a/3.b when the section was
+   actually about performance improvements. Small mismatches like this can
+   confuse an AI (or a human). The rewrite uses the right term in the right
+   place.
+
+5. FIX NUMBERING AND FORMATTING
+   The original jumped from item 13 to item 24. Clean, sequential numbering
+   and consistent indentation make the document scannable and unambiguous.
+
+6. BE SPECIFIC BUT NOT OVER-PRESCRIPTIVE
+   Tell the AI *what* you want (e.g., "backup filenames must include a
+   date-time stamp in local timezone"), not *how* to code it (e.g., don't
+   write pseudocode for date formatting). The AI is better at implementation
+   details than you are — let it do its job.
+
+7. STATE YOUR BOUNDARIES CLEARLY
+   "Don't go overboard — this isn't a public-facing server" and "keep the UI
+   attractive" are boundary statements that prevent the AI from over-optimizing
+   in one direction. The original hinted at this but buried it in sub-items.
+
+8. OWN YOUR DECISIONS; INVITE PUSHBACK ON SPECIFICS
+   The original said "I'll likely accept all of your suggestions" which cedes
+   too much control and gives the AI no guardrails. The rewrite says "I'm open
+   to changes but I want to understand the reasoning." This keeps you in the
+   driver's seat while still welcoming the AI's expertise.
+
+9. ASK FOR A PLAN BEFORE CODE
+   "Present your proposed scope/plan before writing code so we can align
+   first." This one line prevents the AI from writing 500 lines of script
+   based on a misunderstanding. Always checkpoint on big tasks.
+
+10. ONE DELIVERABLE, CLEARLY STATED
+    The original implied multiple outputs (script, restore script, HANDOFF.md,
+    maybe a README) without a clear primary deliverable. The rewrite says
+    upfront: "A single downloadable bash script" and then specifies the
+    secondary outputs (restore mode, HANDOFF.md) as requirements within it.
