@@ -44,3 +44,7 @@ Personal projects and utility scripts. Each subdirectory is an independent proje
 > Do NOT act on these automatically — they require deliberate review.
 
 <!-- Add dated entries below this line -->
+
+### 2026-03-09
+- **gamebooks needs a HANDOFF.md** — marked Active in the registry; has two books, a Playwright test framework, and QA tooling. Worth creating before the next gamebooks session.
+- **zorin-os-script/vmware-fusion-setup.sh is macOS-side** — it's the host-side companion to zorin-tune.sh (which runs inside the VM). Keeping them together in the same folder is correct, but the HANDOFF.md should note that vmware-fusion-setup.sh runs on the Mac host, not inside Zorin.
